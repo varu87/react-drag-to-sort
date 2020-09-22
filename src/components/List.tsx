@@ -7,53 +7,110 @@ interface IListProps {
 }
 
 export const List: React.FC<IListProps> = ({ items }) => {
-	const [ list, setList ] = useState<IItem[]>(items);
+	const MARGIN_BOTTOM: number = 2;
+
+	const [ isDragging, setIsDragging ] = useState<boolean>(false);
 	const [ draggedFrom, setDraggedFrom ] = useState<number>(-1);
-	const [ draggedOver, setDraggedOver ] = useState<number>(-1);
 	const [ draggedTo, setDraggedTo ] = useState<number>(-1);
+	const [ startPosition, setStartPosition ] = useState<number>(-1);
+	const [ list, setList ] = useState<IItem[]>(items);
 
-	const onDragStart = (e: React.DragEvent<HTMLDivElement>): void => {
-		setDraggedFrom(Number(e.currentTarget.dataset.position));
-		e.dataTransfer.setData('text/html', '');
+	const elementRefs: HTMLDivElement[] = [];
+	const setElementRefs = (i: number, elementRef: HTMLDivElement | null) => {
+		if (elementRef) elementRefs[i] = elementRef;
 	};
 
-	const onDragOver = (e: React.DragEvent<HTMLDivElement>): void => {
+	const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
 		e.preventDefault();
-		setDraggedOver(Number(e.currentTarget.dataset.position));
-	};
-
-	const onDragLeave = (e: React.DragEvent<HTMLDivElement>): void => {
-		setDraggedOver(-1);
-		setDraggedTo(-1);
-	};
-
-	const onDrop = (e: React.DragEvent<HTMLDivElement>): void => {
-		const to = Number(e.currentTarget.dataset.position);
-		if (to !== draggedTo) {
-			const itemDragged = list[draggedFrom];
-			const itemsRemaining = list.filter((item, index) => index !== draggedFrom);
-			const newList = [ ...itemsRemaining.slice(0, to), itemDragged, ...itemsRemaining.slice(to) ];
-			setList(newList);
-			setDraggedTo(to);
+		const itemDiv = e.currentTarget.parentElement?.parentElement;
+		const itemIndex = itemDiv?.dataset.position;
+		if (itemIndex) {
+			setIsDragging(true);
+			setDraggedFrom(Number(itemIndex));
+			setStartPosition(e.clientY);
+			elementRefs.forEach((elementRef) => {
+				elementRef.style.transition = 'all 0.1s ease';
+			});
 		}
+	};
 
-		setDraggedFrom(-1);
-		setDraggedOver(-1);
-		setDraggedTo(-1);
+	const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+		if (isDragging) {
+			const itemIndex = e.currentTarget.dataset.position;
+			const draggedFromElement = elementRefs[draggedFrom];
+			if (itemIndex && draggedFromElement) {
+				e.preventDefault();
+				const yOffset = e.clientY - startPosition;
+				const height = draggedFromElement.clientHeight;
+				if (yOffset > 0 && yOffset >= height) {
+					const to = draggedFrom + Math.floor(yOffset / height);
+					if (to > -1 && to < list.length) setDraggedTo(to);
+					const elementsToBeMoved = elementRefs.filter(
+						(elementRef) =>
+							Number(elementRef.dataset.position) > draggedFrom &&
+							Number(elementRef.dataset.position) <= to &&
+							!elementRef.style.transform
+					);
+					if (elementsToBeMoved)
+						elementsToBeMoved.forEach(
+							(element) => (element.style.transform = `translate(0, -${height + MARGIN_BOTTOM}px)`)
+						);
+				} else if (yOffset < 0 && -yOffset >= height) {
+					const to = draggedFrom - Math.floor(-yOffset / height);
+					if (to > -1 && to < list.length) setDraggedTo(to);
+					const elementsToBeMoved = elementRefs.filter(
+						(elementRef) =>
+							Number(elementRef.dataset.position) < draggedFrom &&
+							Number(elementRef.dataset.position) >= to &&
+							!elementRef.style.transform
+					);
+					if (elementsToBeMoved)
+						elementsToBeMoved.forEach(
+							(element) => (element.style.transform = `translate(0, ${height + MARGIN_BOTTOM}px)`)
+						);
+				}
+				draggedFromElement.style.zIndex = '2';
+				draggedFromElement.style.transform = `translate(0, ${yOffset}px)`;
+			} else setIsDragging(false);
+		}
+	};
+
+	const sortList = (e: React.MouseEvent<HTMLDivElement>) => {
+		if (isDragging) {
+			e.preventDefault();
+			const itemDragged = list[draggedFrom];
+			if (draggedTo > -1) {
+				const remainingItems = list.filter((_, index) => index !== draggedFrom);
+				const newList = [
+					...remainingItems.slice(0, draggedTo),
+					itemDragged,
+					...remainingItems.slice(draggedTo)
+				];
+				setList(newList);
+			}
+			elementRefs.forEach((elementRef) => {
+				elementRef.style.removeProperty('transform');
+				elementRef.style.removeProperty('z-index');
+				elementRef.style.removeProperty('transition');
+			});
+			setIsDragging(false);
+			setDraggedFrom(-1);
+			setStartPosition(-1);
+			setDraggedTo(-1);
+		}
 	};
 
 	return (
-		<Container>
+		<Container onMouseUp={sortList} onMouseLeave={sortList}>
 			{list.map((item, index) => (
 				<Item
 					key={item.id}
 					item={item}
 					index={index}
-					draggedOver={draggedOver}
-					onDragStart={onDragStart}
-					onDragOver={onDragOver}
-					onDragLeave={onDragLeave}
-					onDrop={onDrop}
+					marginBottomProp={MARGIN_BOTTOM}
+					setElementRefs={setElementRefs}
+					onMouseDown={onMouseDown}
+					onMouseMove={onMouseMove}
 				/>
 			))}
 		</Container>
@@ -61,6 +118,6 @@ export const List: React.FC<IListProps> = ({ items }) => {
 };
 
 const Container = styled.div`
-	margin-top: 10px;
+	margin-top: 20px;
 	width: 80%;
 `;
