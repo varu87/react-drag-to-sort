@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/react-drag-to-sort/static/css/main.e6303fc6.chunk.css",
+    "main.js": "/react-drag-to-sort/static/js/main.5ca7d97b.chunk.js",
+    "main.js.map": "/react-drag-to-sort/static/js/main.5ca7d97b.chunk.js.map",
+    "runtime-main.js": "/react-drag-to-sort/static/js/runtime-main.1a4c062f.js",
+    "runtime-main.js.map": "/react-drag-to-sort/static/js/runtime-main.1a4c062f.js.map",
+    "static/js/2.9fa8b991.chunk.js": "/react-drag-to-sort/static/js/2.9fa8b991.chunk.js",
+    "static/js/2.9fa8b991.chunk.js.map": "/react-drag-to-sort/static/js/2.9fa8b991.chunk.js.map",
+    "index.html": "/react-drag-to-sort/index.html",
+    "precache-manifest.2485e361392bf1c63bfb1e679582b57e.js": "/react-drag-to-sort/precache-manifest.2485e361392bf1c63bfb1e679582b57e.js",
+    "service-worker.js": "/react-drag-to-sort/service-worker.js",
+    "static/css/main.e6303fc6.chunk.css.map": "/react-drag-to-sort/static/css/main.e6303fc6.chunk.css.map",
+    "static/js/2.9fa8b991.chunk.js.LICENSE.txt": "/react-drag-to-sort/static/js/2.9fa8b991.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.1a4c062f.js",
+    "static/js/2.9fa8b991.chunk.js",
+    "static/css/main.e6303fc6.chunk.css",
+    "static/js/main.5ca7d97b.chunk.js"
+  ]
+}
