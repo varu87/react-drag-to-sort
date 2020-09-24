@@ -7,8 +7,6 @@ interface IListProps {
 }
 
 export const List: React.FC<IListProps> = ({ items }) => {
-	const MARGIN_BOTTOM: number = 2;
-
 	const [ isDragging, setIsDragging ] = useState<boolean>(false);
 	const [ draggedFrom, setDraggedFrom ] = useState<number>(-1);
 	const [ draggedTo, setDraggedTo ] = useState<number>(-1);
@@ -22,15 +20,20 @@ export const List: React.FC<IListProps> = ({ items }) => {
 
 	const onMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
 		e.preventDefault();
-		const itemDiv = e.currentTarget.parentElement?.parentElement;
-		const itemIndex = itemDiv?.dataset.position;
-		if (itemIndex) {
-			setIsDragging(true);
-			setDraggedFrom(Number(itemIndex));
-			setStartPosition(e.clientY);
-			elementRefs.forEach((elementRef) => {
-				elementRef.style.transition = 'all 0.1s ease';
-			});
+		if (e.currentTarget.parentElement) {
+			const itemDiv = e.currentTarget.parentElement.parentElement;
+			if (itemDiv) {
+				const itemIndex = itemDiv.dataset.position;
+				if (itemIndex) {
+					setIsDragging(true);
+					setDraggedFrom(Number(itemIndex));
+					setStartPosition(e.clientY);
+					elementRefs.forEach((elementRef) => {
+						elementRef.style.transition = 'all 0.1s ease';
+					});
+				}
+				if (itemDiv) itemDiv.style.scale = '0.99';
+			}
 		}
 	};
 
@@ -42,6 +45,9 @@ export const List: React.FC<IListProps> = ({ items }) => {
 				e.preventDefault();
 				const yOffset = e.clientY - startPosition;
 				const height = draggedFromElement.clientHeight;
+				const marginBottom = Number(
+					window.getComputedStyle(draggedFromElement).getPropertyValue('margin-bottom').replace('px', '')
+				);
 				if (yOffset > 0 && yOffset >= height) {
 					const to = draggedFrom + Math.floor(yOffset / height);
 					if (to > -1 && to < list.length) setDraggedTo(to);
@@ -53,7 +59,7 @@ export const List: React.FC<IListProps> = ({ items }) => {
 					);
 					if (elementsToBeMoved)
 						elementsToBeMoved.forEach(
-							(element) => (element.style.transform = `translate(0, -${height + MARGIN_BOTTOM}px)`)
+							(element) => (element.style.transform = `translate(0, -${height + marginBottom}px)`)
 						);
 				} else if (yOffset < 0 && -yOffset >= height) {
 					const to = draggedFrom - Math.floor(-yOffset / height);
@@ -66,38 +72,34 @@ export const List: React.FC<IListProps> = ({ items }) => {
 					);
 					if (elementsToBeMoved)
 						elementsToBeMoved.forEach(
-							(element) => (element.style.transform = `translate(0, ${height + MARGIN_BOTTOM}px)`)
+							(element) => (element.style.transform = `translate(0, ${height + marginBottom}px)`)
 						);
 				}
 				draggedFromElement.style.zIndex = '2';
 				draggedFromElement.style.transform = `translate(0, ${yOffset}px)`;
+				draggedFromElement.style.scale = '1.01';
 			} else setIsDragging(false);
 		}
 	};
 
 	const sortList = (e: React.MouseEvent<HTMLDivElement>) => {
-		if (isDragging) {
-			e.preventDefault();
-			const itemDragged = list[draggedFrom];
-			if (draggedTo > -1) {
-				const remainingItems = list.filter((_, index) => index !== draggedFrom);
-				const newList = [
-					...remainingItems.slice(0, draggedTo),
-					itemDragged,
-					...remainingItems.slice(draggedTo)
-				];
-				setList(newList);
-			}
-			elementRefs.forEach((elementRef) => {
-				elementRef.style.removeProperty('transform');
-				elementRef.style.removeProperty('z-index');
-				elementRef.style.removeProperty('transition');
-			});
-			setIsDragging(false);
-			setDraggedFrom(-1);
-			setStartPosition(-1);
-			setDraggedTo(-1);
+		e.preventDefault();
+		const itemDragged = list[draggedFrom];
+		if (draggedTo > -1) {
+			const remainingItems = list.filter((_, index) => index !== draggedFrom);
+			const newList = [ ...remainingItems.slice(0, draggedTo), itemDragged, ...remainingItems.slice(draggedTo) ];
+			setList(newList);
 		}
+		elementRefs.forEach((elementRef) => {
+			elementRef.style.removeProperty('transform');
+			elementRef.style.removeProperty('z-index');
+			elementRef.style.removeProperty('transition');
+			elementRef.style.removeProperty('scale');
+		});
+		setIsDragging(false);
+		setDraggedFrom(-1);
+		setStartPosition(-1);
+		setDraggedTo(-1);
 	};
 
 	return (
@@ -107,7 +109,7 @@ export const List: React.FC<IListProps> = ({ items }) => {
 					key={item.id}
 					item={item}
 					index={index}
-					marginBottomProp={MARGIN_BOTTOM}
+					isDragging={isDragging}
 					setElementRefs={setElementRefs}
 					onMouseDown={onMouseDown}
 					onMouseMove={onMouseMove}

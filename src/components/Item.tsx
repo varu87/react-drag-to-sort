@@ -10,29 +10,23 @@ export interface IItem {
 	numberAttribute: number;
 }
 
-export enum DragDirection {
-	'NONE',
-	'UP',
-	'DOWN'
-}
-
 interface IItemProps {
 	item: IItem;
 	index: number;
-	marginBottomProp: number;
+	isDragging: boolean;
 	setElementRefs: (i: number, elementRef: HTMLDivElement | null) => void;
 	onMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
 	onMouseMove: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 interface IStyleProps {
-	marginBottomProp: number;
+	isDragging: boolean;
 }
 
 export const Item: React.FC<IItemProps> = ({
 	item,
 	index,
-	marginBottomProp,
+	isDragging,
 	setElementRefs,
 	onMouseDown,
 	onMouseMove
@@ -44,9 +38,9 @@ export const Item: React.FC<IItemProps> = ({
 	});
 
 	return (
-		<Container ref={elementRef} data-position={index} onMouseMove={onMouseMove} marginBottomProp={marginBottomProp}>
+		<Container ref={elementRef} data-position={index} onMouseMove={onMouseMove}>
 			<InnerContainer>
-				<ListIcon onMouseDown={onMouseDown}>
+				<ListIcon onMouseDown={onMouseDown} isDragging={isDragging}>
 					<FiList />
 				</ListIcon>
 				<div>{item.title}</div>
@@ -61,10 +55,8 @@ export const Item: React.FC<IItemProps> = ({
 };
 
 const Container =
-	styled.div <
-	IStyleProps >
-	`
-	margin-bottom: ${({ marginBottomProp }) => marginBottomProp}px;
+	styled.div`
+	margin-bottom: 2px;
 	background-color: #fff;
 	position: relative;
 `;
@@ -78,8 +70,8 @@ const InnerContainer = styled.div`
 	align-items: center;
 `;
 
-const ListIcon = styled.div`
+const ListIcon = styled.div<IStyleProps>`
 	&:hover {
-		cursor: grab;
+		cursor: ${({ isDragging }) => (isDragging ? 'grabbing' : 'grab')};
 	}
 `;
