@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/react-drag-to-sort/precache-manifest.2485e361392bf1c63bfb1e679582b57e.js"
+  "/react-drag-to-sort/precache-manifest.0fa5a2a3e99f2d26dec559de13739a58.js"
 );
 
 self.addEventListener('message', (event) => {
