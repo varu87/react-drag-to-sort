@@ -36,7 +36,44 @@ export const List: React.FC<IListProps> = ({ items }) => {
 			}
 		}
 	};
-
+	
+	const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+		if(isDragging) {
+			const draggedFromElement = elementRefs[draggedFrom];
+			if(draggedFromElement) {
+				e.preventDefault();
+				const yOffset = e.clientY - startPosition;
+				const height = draggedFromElement.clientHeight;
+				const marginBottom = Number(window.getComputedStyle(draggedFromElement).getPropertyValue('margin-bottom').replace('px', ''));
+					elementRefs.forEach(element => {
+						const elementPosition = Number(element.dataset.position);
+						if(yOffset > 0) {
+							const movedLength = Math.floor(yOffset / height);
+							if(Math.abs(movedLength) >= 0 && Math.abs(movedLength) < list.length) setDraggedTo(draggedFrom + movedLength);
+							if(elementPosition > draggedFrom && elementPosition <= draggedFrom + movedLength) {
+								element.style.transform = `translate(0, -${height + marginBottom}px)`;
+							}
+							else element.style.transform = `translate(0, 0)`;
+						}
+						if(yOffset < 0) {
+							const movedLength = Math.ceil(yOffset / height);
+							if(Math.abs(movedLength) >= 0 && Math.abs(movedLength) < list.length) setDraggedTo(draggedFrom + movedLength);
+							if(elementPosition < draggedFrom && elementPosition >= draggedFrom + movedLength) {
+								element.style.transform = `translate(0, ${height + marginBottom}px)`;
+							}
+							else element.style.transform = `translate(0, 0)`;
+						}
+					})
+				//}
+				draggedFromElement.style.zIndex = '2';
+				draggedFromElement.style.transform = `translate(0, ${yOffset}px)`;
+				draggedFromElement.style.scale = '1.01';
+			}
+			else setIsDragging(false);
+		}
+	}
+	
+	/*
 	const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
 		if (isDragging) {
 			const itemIndex = e.currentTarget.dataset.position;
@@ -45,34 +82,53 @@ export const List: React.FC<IListProps> = ({ items }) => {
 				e.preventDefault();
 				const yOffset = e.clientY - startPosition;
 				const height = draggedFromElement.clientHeight;
+				console.log(Math.floor(yOffset / height));
 				const marginBottom = Number(
 					window.getComputedStyle(draggedFromElement).getPropertyValue('margin-bottom').replace('px', '')
 				);
-				if (yOffset > 0 && yOffset >= height) {
+				//if (yOffset > 0 && yOffset >= height) {
+				if(e.movementY > 0) {
 					const to = draggedFrom + Math.floor(yOffset / height);
 					if (to > -1 && to < list.length) setDraggedTo(to);
 					const elementsToBeMoved = elementRefs.filter(
 						(elementRef) =>
 							Number(elementRef.dataset.position) > draggedFrom &&
-							Number(elementRef.dataset.position) <= to &&
-							!elementRef.style.transform
+							Number(elementRef.dataset.position) <= to
+					);
+					const elementsToBeReset = elementRefs.filter(
+						(elementRef) => 
+							Number(elementRef.dataset.position) > 0 && Number(elementRef.dataset.position) <= draggedFrom &&
+							Number(elementRef.dataset.position) > to && Number(elementRef.dataset.position) < list.length
 					);
 					if (elementsToBeMoved)
 						elementsToBeMoved.forEach(
 							(element) => (element.style.transform = `translate(0, -${height + marginBottom}px)`)
 						);
-				} else if (yOffset < 0 && -yOffset >= height) {
+					if(elementsToBeReset)
+						elementsToBeReset.forEach(
+							(element) => (element.style.transform = `translate(0, 0)`)
+						);
+				} //else if (yOffset < 0 && -yOffset >= height) {
+				else if (e.movementY < 0) {
 					const to = draggedFrom - Math.floor(-yOffset / height);
 					if (to > -1 && to < list.length) setDraggedTo(to);
 					const elementsToBeMoved = elementRefs.filter(
 						(elementRef) =>
 							Number(elementRef.dataset.position) < draggedFrom &&
-							Number(elementRef.dataset.position) >= to &&
-							!elementRef.style.transform
+							Number(elementRef.dataset.position) >= to
+					);
+					const elementsToBeReset = elementRefs.filter(
+						(elementRef) => 
+							Number(elementRef.dataset.position) > 0 && Number(elementRef.dataset.position) <= to &&
+							Number(elementRef.dataset.position) > draggedFrom && Number(elementRef.dataset.position) < list.length
 					);
 					if (elementsToBeMoved)
 						elementsToBeMoved.forEach(
 							(element) => (element.style.transform = `translate(0, ${height + marginBottom}px)`)
+						);
+					if(elementsToBeReset)
+						elementsToBeReset.forEach(
+							(element) => (element.style.transform = `translate(0, 0)`)
 						);
 				}
 				draggedFromElement.style.zIndex = '2';
@@ -81,6 +137,7 @@ export const List: React.FC<IListProps> = ({ items }) => {
 			} else setIsDragging(false);
 		}
 	};
+	*/
 
 	const sortList = (e: React.MouseEvent<HTMLDivElement>) => {
 		e.preventDefault();
