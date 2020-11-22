@@ -11,6 +11,7 @@ export const List: React.FC<IListProps> = ({ items }) => {
 	const [ draggedFrom, setDraggedFrom ] = useState<number>(-1);
 	const [ draggedTo, setDraggedTo ] = useState<number>(-1);
 	const [ startPosition, setStartPosition ] = useState<number>(-1);
+	const [ initialScrollPosition, setInitialScrollPosition ] = useState<number>(0);
 	const [ list, setList ] = useState<IItem[]>(items);
 
 	const elementRefs: HTMLDivElement[] = [];
@@ -24,6 +25,7 @@ export const List: React.FC<IListProps> = ({ items }) => {
 			const itemDiv = e.currentTarget.parentElement.parentElement;
 			if (itemDiv) {
 				const itemIndex = itemDiv.dataset.position;
+				setInitialScrollPosition(window.scrollY);
 				if (itemIndex) {
 					setIsDragging(true);
 					setDraggedFrom(Number(itemIndex));
@@ -42,28 +44,42 @@ export const List: React.FC<IListProps> = ({ items }) => {
 			const draggedFromElement = elementRefs[draggedFrom];
 			if(draggedFromElement) {
 				e.preventDefault();
-				const yOffset = e.clientY - startPosition;
+				const yOffset = e.clientY - startPosition + window.scrollY - initialScrollPosition;				
 				const height = draggedFromElement.clientHeight;
 				const marginBottom = Number(window.getComputedStyle(draggedFromElement).getPropertyValue('margin-bottom').replace('px', ''));
-					elementRefs.forEach(element => {
-						const elementPosition = Number(element.dataset.position);
-						if(yOffset > 0) {
-							const movedLength = Math.floor(yOffset / height);
-							if(Math.abs(movedLength) >= 0 && Math.abs(movedLength) < list.length) setDraggedTo(draggedFrom + movedLength);
-							if(elementPosition > draggedFrom && elementPosition <= draggedFrom + movedLength) {
-								element.style.transform = `translate(0, -${height + marginBottom}px)`;
-							}
-							else element.style.transform = `translate(0, 0)`;
+				if(e.clientY > window.innerHeight - 0.6 * height) {
+					window.scrollBy({
+						top: height,
+						left: 0,
+						behavior: 'smooth'
+					});
+				}
+				else if(e.clientY < 0.6 * height) {
+					window.scrollBy({
+						top: -height,
+						left: 0,
+						behavior: 'smooth'
+					});
+				}
+				elementRefs.forEach(element => {
+					const elementPosition = Number(element.dataset.position);
+					if(yOffset > 0) {
+						const movedLength = Math.floor(yOffset / height);
+						if(Math.abs(movedLength) >= 0 && Math.abs(movedLength) < list.length) setDraggedTo(draggedFrom + movedLength);
+						if(elementPosition > draggedFrom && elementPosition <= draggedFrom + movedLength) {
+							element.style.transform = `translate(0, -${height + marginBottom}px)`;
 						}
-						if(yOffset < 0) {
-							const movedLength = Math.ceil(yOffset / height);
-							if(Math.abs(movedLength) >= 0 && Math.abs(movedLength) < list.length) setDraggedTo(draggedFrom + movedLength);
-							if(elementPosition < draggedFrom && elementPosition >= draggedFrom + movedLength) {
-								element.style.transform = `translate(0, ${height + marginBottom}px)`;
-							}
-							else element.style.transform = `translate(0, 0)`;
+						else element.style.transform = `translate(0, 0)`;
+					}
+					if(yOffset < 0) {
+						const movedLength = Math.ceil(yOffset / height);
+						if(Math.abs(movedLength) >= 0 && Math.abs(movedLength) < list.length) setDraggedTo(draggedFrom + movedLength);
+						if(elementPosition < draggedFrom && elementPosition >= draggedFrom + movedLength) {
+							element.style.transform = `translate(0, ${height + marginBottom}px)`;
 						}
-					})
+						else element.style.transform = `translate(0, 0)`;
+					}
+				});
 				draggedFromElement.style.zIndex = '2';
 				draggedFromElement.style.transform = `translate(0, ${yOffset}px)`;
 				draggedFromElement.style.scale = '1.01';
@@ -89,6 +105,7 @@ export const List: React.FC<IListProps> = ({ items }) => {
 		setIsDragging(false);
 		setDraggedFrom(-1);
 		setStartPosition(-1);
+		setInitialScrollPosition(0);
 		setDraggedTo(-1);
 	};
 
