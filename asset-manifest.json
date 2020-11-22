@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/react-drag-to-sort/static/css/main.e6303fc6.chunk.css",
-    "main.js": "/react-drag-to-sort/static/js/main.ddf079ce.chunk.js",
-    "main.js.map": "/react-drag-to-sort/static/js/main.ddf079ce.chunk.js.map",
+    "main.js": "/react-drag-to-sort/static/js/main.7465627d.chunk.js",
+    "main.js.map": "/react-drag-to-sort/static/js/main.7465627d.chunk.js.map",
     "runtime-main.js": "/react-drag-to-sort/static/js/runtime-main.1a4c062f.js",
     "runtime-main.js.map": "/react-drag-to-sort/static/js/runtime-main.1a4c062f.js.map",
     "static/js/2.9fa8b991.chunk.js": "/react-drag-to-sort/static/js/2.9fa8b991.chunk.js",
     "static/js/2.9fa8b991.chunk.js.map": "/react-drag-to-sort/static/js/2.9fa8b991.chunk.js.map",
     "index.html": "/react-drag-to-sort/index.html",
-    "precache-manifest.64f6674ea57e38a949e59094be004d17.js": "/react-drag-to-sort/precache-manifest.64f6674ea57e38a949e59094be004d17.js",
+    "precache-manifest.dd2bec2ec0f57789d82ff0f3c9f6dd48.js": "/react-drag-to-sort/precache-manifest.dd2bec2ec0f57789d82ff0f3c9f6dd48.js",
     "service-worker.js": "/react-drag-to-sort/service-worker.js",
     "static/css/main.e6303fc6.chunk.css.map": "/react-drag-to-sort/static/css/main.e6303fc6.chunk.css.map",
     "static/js/2.9fa8b991.chunk.js.LICENSE.txt": "/react-drag-to-sort/static/js/2.9fa8b991.chunk.js.LICENSE.txt"
@@ -17,6 +17,6 @@
     "static/js/runtime-main.1a4c062f.js",
     "static/js/2.9fa8b991.chunk.js",
     "static/css/main.e6303fc6.chunk.css",
-    "static/js/main.ddf079ce.chunk.js"
+    "static/js/main.7465627d.chunk.js"
   ]
 }
